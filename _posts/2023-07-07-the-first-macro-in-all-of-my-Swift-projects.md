@@ -6,7 +6,7 @@ excerpt: One of the highlight features of Swift 5.9 is the macro system. There�
 
 Last month, WWDC 2023 came packed with exciting new developments for the iOS community, as it always does. Every year, one of the most anticipated talks for me is [What’s new in Swift](https://developer.apple.com/videos/play/wwdc2023/10164/), because beyond writing iOS apps, I like to [leverage Swift for server-side projects too](https://vapor.codes).
 
-With this WWDC comes Swift 5.9, and I'd describe the set of changes overall as somewhat low-level and nontrivial to grasp. I don't anticipate using the ownership APIs or C++ interoperability, and while I'm sure I'll discover a use case for type parameter packs, there is a lot of new syntax to process. Macros are definitely nontrivial to grasp as well, but the value proposition to developers is pretty clear - _extend the compiler in useful ways that previously required custom tooling for code generation_. Historically, when iOS developers have found repetitive boilerplate that existing tools can’t help with automating, [Sourcery](https://github.com/krzysztofzablocki/Sourcery) had been the best tool for the job. Both Sourcery and the new Macro system fundamentally work by allowing you to examine your code as an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and output some new Swift code to compile alongside your manually-written code. Even as the Swift compiler improves, there are still a bunch of common use cases for such a tool:
+With this WWDC comes Swift 5.9, and I'd describe the set of changes overall as somewhat low-level and nontrivial to grasp. I don't anticipate using the ownership APIs or C++ interoperability, and while I'm sure I'll discover a use case for type parameter packs, there is a lot of new syntax to process. Macros are definitely nontrivial to grasp as well, but the value proposition to developers is pretty clear - **extend the compiler in useful ways that previously required custom tooling for code generation**. Historically, when iOS developers have found repetitive boilerplate that existing tools can’t help with automating, [Sourcery](https://github.com/krzysztofzablocki/Sourcery) had been the best tool for the job. Both Sourcery and the new Macro system fundamentally work by allowing you to examine your code as an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and output some new Swift code to compile alongside your manually-written code. Even as the Swift compiler improves, there are still a bunch of common use cases for such a tool:
 * Custom Equatable, Hashable and Codable implementations
 * Generating mocks for type declarations
 * Mapping user preferences in User Defaults to a UIKit/SwiftUI form
@@ -17,14 +17,14 @@ There’s one mainstay use case in most of my projects, and to explain why I fin
 
 # You Might Not Want an Enum
 
-The situation I want to examine is when a Swift project has a _data type with a bunch of preset values_. That’s a pretty vague description, and it can include:
+The situation I want to examine is when a Swift project has a **data type with a bunch of preset values**. That’s (intentionally) a pretty vague description, and it can include:
 * The set of all HTTP methods: GET, PUT, POST, DELETE, and so on.
 * Possible roles for users on a platform: Admin, Moderator, User, Guest, etc.
 * Models of non-player characters in a video game.
 * A client-side list of supported countries and their flags.
 * A set of themes for users to customize their UI.
 
-The list of scenarios fitting this criteria is quite long, and the related style discussion that comes up is: *should the data type be a struct or an enum*? Both of the following definitions have the same callsite and usage semantics.
+The list of scenarios fitting this criteria is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and usage semantics.
 ```swift
 enum Country {
   // ...
@@ -53,7 +53,7 @@ struct Country {
   // ...
 }
 ```
-can both be called as:
+can both be called as (for example):
 ```swift
 print(Country.unitedStates.name)
 ```
@@ -66,7 +66,7 @@ For more on this choice and why I advocate for structs, see [Matt Diephouse’s 
 
 ## You Probably Want to Iterate
 
-While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to _iterate over this set of values_. Maybe you want to show a modal UI with all of the supported `Country` values, or all of the themes in your app, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
+While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `Country` values, or all of the themes in your app, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
 ```swift
 extension Country: CaseIterable {} // works for free if using an enum, not for a struct!
 print(Country.allCases.map(\.name))
@@ -79,8 +79,7 @@ So, that's why I have a `StaticMemberIterable` in most of my projects.
 
 As mentioned above, this functionality is a good example of a gap in current compiler functionality, which we can patch up via code generation - either via Sourcery, or, starting with Xcode 15, Swift macros.
 
-// TODO: gist
-You can see my Sourcery implementation of `StaticMemberIterable` [here]() as a gist. You’ll see that it works with Sourcery’s annotations system, which means you just need to add a comment above the struct to opt-in to the `StaticMemberIterable` code generation. The template could easily be tweaked to make it work by conforming your struct type to a protocol, however: the template is a `.swifttemplate` file, which, while [documented](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md#swift-templates), is not as easy to work with or diagnose errors as regular Swift - that’s one of the handful of reasons why macros are a big improvement to this implementation.
+You can see my Sourcery implementation of `StaticMemberIterable` [here](https://gist.github.com/nevillco/aec0c67a7457a99fb220336614bc8184) as a gist. You’ll see that it works with Sourcery’s annotations system, which means you just need to add a comment above the struct to opt-in to the `StaticMemberIterable` code generation. The template could easily be tweaked to make it work by conforming your struct type to a protocol, however: the template is a `.swifttemplate` file, which, while [documented](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md#swift-templates), is not as easy to work with or diagnose errors as regular Swift - that’s one of the handful of reasons why macros are a big improvement to this implementation.
 
 As far as the Macro-version of the implementation, I’m using Ian Keen’s [MacroKit](https://github.com/IanKeen/MacroKit), and the outputted code is functionally identical as before.
 
