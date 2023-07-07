@@ -27,26 +27,26 @@ The situation I want to examine is when a Swift project has a **data type with a
 The list of scenarios fitting this criteria is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and usage semantics.
 ```swift
 enum AppTheme {
-  // ...
+  // …
   case metal
   case skyBlue
-  // ...
+  // …
 
   var name: String {
     switch self {
-    // ...
+    // …
     case .metal: return "Metal"
     case .skyBlue: return "SkyBlue"
-    // ...
+    // …
     }
   }
 
   var headingColor: String {
     switch self {
-    // ...
+    // …
     case .metal: return "000000"
     case .skyBlue: return "33FFFF"
-    // ...
+    // …
     }
   }
 }
@@ -61,10 +61,10 @@ struct AppTheme {
     self.headingColor = headingColor
   }
 
-  // ...
+  // …
   static let metal = AppTheme(name: "Metal", headingColor: "000000")
   static let skyBlue = AppTheme(name: "Sky Blue", headingColor: "33FFFF")
-  // ...
+  // …
 }
 ```
 can both be called identically as (for example):
@@ -78,7 +78,7 @@ Enums have many valid use cases and are a critical part of the Swift language, b
 
 For more on this choice and why I advocate for structs, see [Matt Diephouse’s post](https://matt.diephouse.com/2017/12/when-not-to-use-an-enum/).
 
-## ...But You Probably Want to Iterate
+## …But You Probably Want to Iterate
 
 While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `AppTheme` values, or list the supported countries, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
 ```swift
@@ -113,15 +113,15 @@ So, why is the Macro implementation so much better?
 ```swift
 @StaticMemberIterable(recursive: true)
 struct AppTheme {
-  static let metal: AppTheme = // ...
-  static let skyBlue: AppTheme = //...
+  static let metal: AppTheme = // …
+  static let skyBlue: AppTheme = //…
 
   // Improve `StaticMemberIterable` to produce cases like
   // `.promotionTheme(.holiday), .promotionTheme(.anniversary), etc.
   // for this function if `PromotionKind` is `CaseIterable` or `StaticMemberIterable`,
   // and if `recursive` is true.
   static func promotionTheme(promotionKind: PromotionKind) -> AppTheme {
-    // ...
+    // …
   }
 
 }
