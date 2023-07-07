@@ -97,7 +97,11 @@ So, that's why I have a `StaticMemberIterable` in most of my projects.
 
 As mentioned above, this is a good example of a gap in current compiler functionality, which we can patch up via code generation - either via Sourcery, or, starting with Xcode 15, Swift macros.
 
+### As a Sourcery Template
+
 You can see my Sourcery implementation of `StaticMemberIterable` [here](https://gist.github.com/nevillco/aec0c67a7457a99fb220336614bc8184) as a gist. You’ll see that it works with Sourcery’s annotations system, which means you just need to add a comment above the struct to opt-in to the `StaticMemberIterable` code generation. The template could easily be tweaked to make it work by conforming your struct type to a protocol, however: the template is a `.swifttemplate` file, which, while [documented](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md#swift-templates), is not as easy to work with or diagnose errors as regular Swift - that’s one of the handful of reasons why macros are a big improvement to this implementation.
+
+### As a Macro
 
 As far as the Macro-version of the implementation, I’m using Ian Keen’s [MacroKit](https://github.com/IanKeen/MacroKit), and the outputted code is functionally identical as before.
 
