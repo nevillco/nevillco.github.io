@@ -1,7 +1,7 @@
 ---
 title: 'The First macro in all of my Swift Projects'
 date: 2023-07-07 09:00:00
-excerpt: One of the highlight features of Swift 5.9 is the macro system. There’s one macro in particular that I am excited about adopting in a variety of projects.
+excerpt: Swift 5.9 lets iOS developers extend the Swift compiler all on their own with macros. There’s one macro in particular that I am excited about adopting in a variety of projects.
 ---
 
 Last month, WWDC 2023 came packed with exciting new developments for the iOS community, as it always does. Every year, one of the most anticipated talks for me is [What’s new in Swift](https://developer.apple.com/videos/play/wwdc2023/10164/), because beyond writing iOS apps, I like to [leverage Swift for server-side projects too](https://vapor.codes).
