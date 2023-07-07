@@ -126,6 +126,7 @@ I should also note the one major advantage that Sourcery still has over Swift ma
   // …
 }
 
+// ⚠️
 extension AppTheme {
   // …
   static let metal = AppTheme(name: "Metal", headingColor: "000000")
