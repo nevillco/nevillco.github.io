@@ -116,8 +116,24 @@ As far as the Macro-version of the implementation, I started using Ian Keen’s 
 
 So, why is the Macro implementation so much better?
 * They are written as pure Swift, which means compilation checks on your macro code and the ability to unit test your `StaticMemberIterable` implementation (not that I’ve gotten around to that part!). 
-* They are installed via a plugin system, which has its own overhead, but with Sourcery at some level you will need to invoke it via shell, passing arguments (or providing a .yml file) and making sure it’s being executed as (usually) a build phase. Macros can be iterated on more effectively and safely, because their entire integration is visible and inspectable within Xcode.
+* They are installed via a plugin system, which has its own overhead, but with Sourcery at some level you will need to invoke it via shell, passing arguments (or providing a YAML file) and making sure it’s being executed as (usually) a build phase. Macros can be iterated on more effectively and safely, because their entire integration is visible and inspectable within Xcode.
 * Macros are predictable and additive - every declaration or expression that is affected by a Macro is given a clear annotation, and macros can only add and extend code, not modify or delete it. Xcode has first class support for viewing the diff produced by the Macro, inline. Sourcery is also additive, but as mentioned earlier, its tooling stack often goes outside of Xcode and can have a higher learning curve.
+
+I should also note the one major advantage that Sourcery still has over Swift macros at this time: Sourcery will **discover** all declarations in the Swift files that are specified in the shell prompt or YAML file, whereas macros only have visibility into the declaration they are attached to. That means that putting the static members in an extension like:
+
+```swift
+@StaticMemberIterable struct AppTheme {
+  // …
+}
+
+extension AppTheme {
+  // …
+  static let metal = AppTheme(name: "Metal", headingColor: "000000")
+  static let skyBlue = AppTheme(name: "Sky Blue", headingColor: "33FFFF")
+  // …
+}
+```
+will **not** include `metal` and `skyBlue` in its generated `allCases`, because the `@StaticMemberIterable` macro only applies to the declaration it is attached to (the struct, not the extension). The Sourcery approach, however, would include those values in the generated code, because it discovers all declarations within the scoped files.
 
 ## Future Directions
 
