@@ -15,7 +15,7 @@ If you want to learn more about macros, their benefits, and now they work, you s
 
 There’s one mainstay use case in most of my projects, and to explain why I find it so common, I need to back up and talk about a stylistic discussion that also occurs a lot in Swift projects.
 
-# You Might Not Want an Enum
+## You Might Not Want an Enum
 
 The situation I want to examine is when a Swift project has a **data type with a bunch of preset values**. That’s (intentionally) a pretty vague description, and it can include:
 * The set of all HTTP methods: GET, PUT, POST, DELETE, and so on.
