@@ -99,11 +99,19 @@ As mentioned above, this is a good example of a gap in current compiler function
 
 ### As a Sourcery Template
 
-You can see my Sourcery implementation of `StaticMemberIterable` [here](https://gist.github.com/nevillco/aec0c67a7457a99fb220336614bc8184) as a gist. You’ll see that it works with Sourcery’s annotations system, which means you just need to add a comment above the struct to opt-in to the `StaticMemberIterable` code generation. The template could easily be tweaked to make it work by conforming your struct type to a protocol, however: the template is a `.swifttemplate` file, which, while [documented](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md#swift-templates), is not as easy to work with or diagnose errors as regular Swift - that’s one of the handful of reasons why macros are a big improvement to this implementation.
+You can see my Sourcery implementation of `StaticMemberIterable` [here](https://gist.github.com/nevillco/aec0c67a7457a99fb220336614bc8184) as a gist. If you’re looking to install it but aren’t familiar with Sourcery, you should give the [documentation in Sourcery’s repo](https://github.com/krzysztofzablocki/Sourcery) a read first. You’ll see that this template works with Sourcery’s annotations system, which means you just need to add a comment above the struct to opt-in to the `StaticMemberIterable` code generation:
+
+```swift
+// sourcery:StaticMemberIterable
+struct AppTheme {
+  // …
+}
+```
+The template could easily be tweaked to make it work by conforming your struct type to a protocol instead, however: the template is a `.swifttemplate` file, which, while [documented](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md#swift-templates), is not as easy to work with or diagnose errors as regular Swift, so I don’t iterate on it much - that’s one of the handful of reasons why macros are a big improvement here.
 
 ### As a Macro
 
-As far as the Macro-version of the implementation, I’m using Ian Keen’s [MacroKit](https://github.com/IanKeen/MacroKit), and the outputted code is functionally identical as before.
+As far as the Macro-version of the implementation, I started using Ian Keen’s [MacroKit](https://github.com/IanKeen/MacroKit), and the outputted code is functionally identical as before.
 
 So, why is the Macro implementation so much better?
 * They are written as pure Swift, which means compilation checks on your macro code and the ability to unit test your `StaticMemberIterable` implementation (not that I’ve gotten around to that part!). 
