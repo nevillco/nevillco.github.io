@@ -107,9 +107,11 @@ So, why is the Macro implementation so much better?
 ## Future Directions
 
 `StaticMemberIterable` is a good addition to a lot of projects, and I'm excited to see developers push other brand new compiler capabilities with macros. A few things on this topic I’m still thinking about:
-* A separate `@ViewFromStaticMemberIterable` Macro that must be attached to a SwiftUI View, provides a type that conforms to `StaticMemberIterable`, and produces snapshots for each instance. I could write a single `XCTestCase` that iterates over them in a `for` loop, but test failure reporting is subpar that way - all failures point to the same line and it's not clear which instances had their tests fail. Better to generate a whole `XCTestCase` with a test function per instance.
-    * I’m a big proponent of snapshot testing. There is enough to be said on snapshot testing to merit a separate post, but in short, I think it’s a low-effort, high-reward way of adding test coverage to iOS apps. I am a fan of PointFree’s snapshot testing [framework](https://github.com/pointfreeco/swift-snapshot-testing). If you already use snapshot tests in your project, I would say the likelihood increases that `StaticMemberIterable` is useful to you in some capacity.
+* A separate `@ViewFromStaticMemberIterable` Macro that must be attached to a SwiftUI View, provides a type that conforms to `StaticMemberIterable`, and produces snapshots for each instance[^2]. I could write a single `XCTestCase` that iterates over them in a `for` loop, but test failure reporting is subpar that way - all failures point to the same line and it's not clear which instances had their tests fail. Better to generate a whole `XCTestCase` with a test function per instance.
     * I have this working as a Sourcery template and will update here whenever I have a macro version to share.
+
+[^2]: I’m a big proponent of snapshot testing. There is enough to be said on snapshot testing to merit a separate post, but in short, I think it’s a low-effort, high-reward way of adding test coverage to iOS apps. I am a fan of PointFree’s snapshot testing [framework](https://github.com/pointfreeco/swift-snapshot-testing). If you already use snapshot tests in your project, I would say the likelihood increases that `StaticMemberIterable` is useful to you in some capacity.
+
 * Extend `StaticMemberIterable` to include values produced by static _functions_, if their only argument is also `CaseIterable` or `StaticMemberIterable`:
 
 ```swift
