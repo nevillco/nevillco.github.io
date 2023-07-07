@@ -1,9 +1,8 @@
 ---
 title: About Me
-featured_image: /images/social.jpg
 ---
 
-Hey, I’m Connor. I’ve contributed to a lot of different software projects in a few different ways, but above all I'm a *Software Engineer specializing in iOS, with experience managing teams*. I graduated from Boston College in 2016 and have worked in a variety of roles and contexts since then, but always with the goal of building useful and enjoyable software. 
+Hey, I’m Connor. I’ve contributed to a lot of different software projects in a few different ways, but above all I'm a **Software Engineer specializing in iOS, with experience managing teams**. I graduated from Boston College in 2016 and have worked in a variety of roles and contexts since then, but always with the goal of building useful and enjoyable software. 
 
 I have experience building at scale and building from scratch, and I enjoy contributing to product teams both on an individual scale and by scoping out and coordinating larger units of work. Working alongside friendly, thoughtful, talented folks will always be at the top of my list of priorities. 
 
