@@ -57,7 +57,7 @@ can both be called as (for example):
 ```swift
 print(Country.unitedStates.name)
 ```
-Enums have many valid use cases and are a critical part of the Swift language, but in the above described situations, I would say the *struct is preferable here*. I'm going to keep the "why" brief, because there already exist some good resources on this topic, but:
+Enums have many valid use cases and are a critical part of the Swift language, but in the above described situations, I would say the **struct is preferable here**. I'm going to keep the "why" brief, because there already exist some good resources on this topic, but:*
 * It’s easier to extend with new values. When adding a new case to the enum, you need to fill in the `case` inside of `var name: String` - which sounds like a small deal, but at scale, these value types will often have _many_ more than 1 property. With a struct, all of those properties are localized together.
 * You can lock down the initialization (if you want): with a struct, I can choose to make the `init` private, or I can customize which properties are directly instantiable. With enums, you can add a case if you’re inside the owning module, and not otherwise.
 * At scale, it’s easy for convoluted logic or accidental mismatches to occur inside the computed `var`s. With structs, all you can do is declare the type.
@@ -93,6 +93,7 @@ So, why is the Macro implementation so much better?
 `StaticMemberIterable` is a good addition to a lot of projects, and I'm excited to see developers push other brand new compiler capabilities with macros. A few things on this topic I’m still thinking about:
 * A separate `@ViewFromStaticMemberIterable` Macro that must be attached to a SwiftUI View, provides a type that conforms to `StaticMemberIterable`, and produces snapshots for each instance. I could write a single `XCTestCase` that iterates over them in a `for` loop, but test failure reporting is subpar that way - all failures point to the same line and it's not clear which instances had their tests fail. Better to generate a whole `XCTestCase` with a test function per instance.
     * I’m a big proponent of snapshot testing. There is enough to be said on snapshot testing to merit a separate post, but in short, I think it’s a low-effort, high-reward way of adding test coverage to iOS apps. I am a fan of PointFree’s snapshot testing [framework](https://github.com/pointfreeco/swift-snapshot-testing). If you already use snapshot tests in your project, I would say the likelihood increases that `StaticMemberIterable` is useful to you in some capacity.
+    * I have this working as a Sourcery template and will update here whenever I have a macro version to share.
 * Extend `StaticMemberIterable` to include values produced by static _functions_, if their only argument is also `CaseIterable` or `StaticMemberIterable`:
 
 ```swift
