@@ -84,7 +84,8 @@ For more on this choice and why I advocate for structs, see [Matt Diephouse’s 
 
 While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `AppTheme` values, or list the supported countries, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
 ```swift
-extension AppTheme: CaseIterable {} // only works for free if using an enum!
+// only works for free if using an enum!
+extension AppTheme: CaseIterable {} 
 print(AppTheme.allCases.map(\.name))
 ```
 So, how do we patch this gap in functionality with structs?[^1] This is a perfect use case for (historically) Sourcery and (now) Swift macros! If the above examples don’t sound valuable, I’ll be clear that I find this a _very_ valuable piece of functionality because 1) every app always has these data types with a bunch of preset values and 2) I find they very often end up being representable as JSON, some UI, or both. Being able to iterate over the set means you can get new JSON snapshot tests, UI snapshot tests, SwiftUI previews and more, without any additional work when you add a new value.
