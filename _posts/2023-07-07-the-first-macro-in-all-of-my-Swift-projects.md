@@ -36,7 +36,7 @@ enum AppTheme {
     switch self {
     // …
     case .metal: return "Metal"
-    case .skyBlue: return "SkyBlue"
+    case .skyBlue: return "Sky Blue"
     // …
     }
   }
