@@ -129,4 +129,4 @@ struct AppTheme {
 
 This would be a substantial test of the SwiftSyntax macros API, but I believe should be possible.
 
-That’s all for now on this topic. In addition to the resources linked above, I also recommend checking out the [swift-macro-examples Repo](https://github.com/DougGregor/swift-macro-examples) if you’re just getting started with this new language feature.
+That’s all for now on this topic. In addition to the resources linked above, I also recommend checking out the [swift-macro-examples repo](https://github.com/DougGregor/swift-macro-examples) if you’re just getting started with this new language feature.
