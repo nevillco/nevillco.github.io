@@ -63,7 +63,7 @@ struct AppTheme {
 
   // ...
   static let metal = AppTheme(name: "Metal", headingColor: "000000")
-  static let skyBlue = AppTheme(name: "Sky Blue", headingColor: ""33FFFF)
+  static let skyBlue = AppTheme(name: "Sky Blue", headingColor: "33FFFF")
   // ...
 }
 ```
