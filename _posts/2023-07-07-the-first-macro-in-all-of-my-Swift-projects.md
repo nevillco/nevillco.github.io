@@ -1,5 +1,5 @@
 ---
-title: 'The First macro in all of my Swift Projects'
+title: 'The First macro in (most of) my Swift Projects'
 date: 2023-07-07 09:00:00
 excerpt: Swift 5.9 lets iOS developers extend the Swift compiler all on their own with macros. There’s one macro in particular that I am excited about adopting in a variety of projects.
 ---
@@ -11,7 +11,7 @@ With this WWDC comes Swift 5.9, and I'd describe the set of changes overall as s
 * Generating mocks for type declarations
 * Mapping user preferences in User Defaults to a UIKit/SwiftUI form
 
-If you want to learn more about macros, their benefits, and now they work, you should watch the WWDC session [Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167) first, and then [Write Swift macros](https://developer.apple.com/videos/play/wwdc2023/10166/).
+If you want to learn more about macros, their benefits, and how they work, you should watch the WWDC session [Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167) first, and then [Write Swift macros](https://developer.apple.com/videos/play/wwdc2023/10166/).
 
 There’s one mainstay use case in most of my projects, and to explain why I find it so common, I need to back up and talk about a stylistic discussion that also occurs a lot in Swift projects.
 
@@ -78,7 +78,7 @@ Enums have many valid use cases and are a critical part of the Swift language, b
 
 For more on this choice and why I advocate for structs, see [Matt Diephouse’s post](https://matt.diephouse.com/2017/12/when-not-to-use-an-enum/).
 
-## You Probably Want to Iterate
+## ...But You Probably Want to Iterate
 
 While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `AppTheme` values, or list the supported countries, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
 ```swift
