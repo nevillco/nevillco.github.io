@@ -6,25 +6,25 @@ excerpt: Swift 5.9 lets iOS developers extend the Swift compiler all on their ow
 
 Last month, WWDC 2023 came packed with exciting new developments for the iOS community, as it always does. Every year, one of the most anticipated talks for me is [What’s new in Swift](https://developer.apple.com/videos/play/wwdc2023/10164/), because beyond writing iOS apps, I like to [leverage Swift for server-side projects too](https://vapor.codes).
 
-With this WWDC comes Swift 5.9, and I'd describe the set of changes overall as somewhat low-level and nontrivial to grasp. I don't anticipate using the ownership APIs or C++ interoperability, and while I'm sure I'll discover a use case for type parameter packs, there is a lot of new syntax to process. Macros are definitely nontrivial to grasp as well, but the value proposition to developers is pretty clear - **extend the compiler in useful ways that previously required custom tooling for code generation**. Historically, when iOS developers have found repetitive boilerplate that existing tools can’t help with automating, [Sourcery](https://github.com/krzysztofzablocki/Sourcery) had been the best tool for the job. Both Sourcery and the new Macro system fundamentally work by allowing you to examine your code as an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and output some new Swift code to compile alongside your manually-written code. Even as the Swift compiler improves, there are still a bunch of common use cases for such a tool:
+With this WWDC comes Swift 5.9, and I'd describe the set of changes overall as somewhat low-level and nontrivial to grasp. I don't anticipate using the ownership APIs or C++ interoperability, and while I'm sure I'll discover a use case for type parameter packs, there is a lot of new syntax to process. Macros are definitely nontrivial to grasp as well, but the value proposition to developers is pretty clear - **extend the compiler in useful ways that previously required custom tooling for code generation**. Historically, when iOS developers have found repetitive boilerplate that existing tools can’t help with automating, [Sourcery](https://github.com/krzysztofzablocki/Sourcery) had been the best tool for the job. Both Sourcery and the new Macro system fundamentally work by allowing you to examine your code as an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and output some new Swift code to be compiled. Even as the Swift compiler improves, there are still a bunch of common use cases for such a tool:
 * Custom Equatable, Hashable and Codable implementations
 * Generating mocks for type declarations
 * Mapping user preferences in User Defaults to a UIKit/SwiftUI form
 
 If you want to learn more about macros, their benefits, and how they work, you should watch the WWDC session [Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167) first, and then [Write Swift macros](https://developer.apple.com/videos/play/wwdc2023/10166/).
 
-There’s one mainstay use case in most of my projects, and to explain why I find it so common, I need to back up and talk about a stylistic discussion that also occurs a lot in Swift projects.
+There’s one mainstay use case in most of my projects, and to explain why I find it useful, I need to back up and talk about a stylistic discussion that also occurs a lot in Swift projects.
 
 ## You Might Not Want an Enum
 
-The situation I want to examine is when a Swift project has a **data type with a bunch of preset values**. That’s (intentionally) a pretty vague description, and it can include:
+The situation I want to examine is when a Swift project has a **data type with a bunch of preset values**. That’s (intentionally) a pretty vague description, and examples include:
 * The set of all HTTP methods: GET, PUT, POST, DELETE, and so on.
 * Possible roles for users on a platform: Admin, Moderator, User, Guest, etc.
 * Models of non-player characters in a video game.
 * A client-side list of supported countries and their flags.
 * A set of themes for users to customize their UI.
 
-The list of scenarios fitting this criteria is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and usage semantics.
+The list of applicable examples is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and the same usage semantics.
 ```swift
 enum AppTheme {
   // …
@@ -67,14 +67,14 @@ struct AppTheme {
   // …
 }
 ```
-can both be called identically as (for example):
+can both be called identically (for example):
 ```swift
 print(AppTheme.metal.name)
 ```
 Enums have many valid use cases and are a critical part of the Swift language, but in the above described situations, I would say the **struct is preferable here**. I'm going to keep the "why" brief, because there already exist some good resources on this topic, but:*
-* It’s easier to extend with new values. When adding a new case to the enum, you need to fill in the `case` inside of `var name: String` and then navigate to the `case` inside of `var headingColor: String` - which sounds like a small deal, but at scale, these value types will often have _many_ more than 2 properties, and many more than 2 cases. With a struct, all of those properties are localized together.
+* It’s easier to extend with new values. When adding a new case to the enum, you need to fill in the `case` inside of `var name: String` and then navigate to the `case` inside of `var headingColor: String` - which sounds like a small deal, but at scale, these value types will often have many more than 2 properties, and many more than 2 cases. With a struct, all of those properties are localized together.
 * You can lock down the initialization (if you want): with a struct, you can choose to make the `init` private, or you can customize which properties are directly instantiable. With enums, you can add a case if you’re inside the owning module, and not otherwise.
-* At scale, it’s easy for convoluted logic or accidental mismatches to occur inside the computed `var`s. With structs, all you can do is declare the type.
+* At scale, it’s easy for convoluted logic or accidental mismatches to end up inside the computed `var`s. With structs, all you can do is declare the type.
 
 For more on this choice and why I advocate for structs, see [Matt Diephouse’s post](https://matt.diephouse.com/2017/12/when-not-to-use-an-enum/).
 
@@ -85,7 +85,9 @@ While I've established that I think structs are the right tool for this job, reg
 extension AppTheme: CaseIterable {} // only works for free if using an enum!
 print(AppTheme.allCases.map(\.name))
 ```
-So, how do we patch this gap in functionality with structs? This is a perfect use case for (historically) Sourcery and (now) Swift macros! If the above examples don’t sound valuable, I’ll be clear that I find this a _very_ valuable piece of functionality because 1) every app always has these data types with a bunch of preset values and 2) I find they very often end up being representable as JSON, some UI, or both. Being able to iterate over the set means you can get new JSON snapshot tests, UI snapshot tests, SwiftUI previews and more, without any additional work when you add a new value.
+So, how do we patch this gap in functionality with structs?[^1] This is a perfect use case for (historically) Sourcery and (now) Swift macros! If the above examples don’t sound valuable, I’ll be clear that I find this a _very_ valuable piece of functionality because 1) every app always has these data types with a bunch of preset values and 2) I find they very often end up being representable as JSON, some UI, or both. Being able to iterate over the set means you can get new JSON snapshot tests, UI snapshot tests, SwiftUI previews and more, without any additional work when you add a new value.
+
+[^1]: Of course, you can implement `static var allCases: [Self]` for such a struct manually. But that means accepting that, on a project at scale with multiple developers working in the project, static members will probably be forgotten and left out of this declaration. It also means possible merge conflicts when multiple developers manually edit the declaration.
 
 So, that's why I have a `StaticMemberIterable` in most of my projects.
 
