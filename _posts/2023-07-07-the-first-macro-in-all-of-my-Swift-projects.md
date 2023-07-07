@@ -26,15 +26,26 @@ The situation I want to examine is when a Swift project has a **data type with a
 
 The list of scenarios fitting this criteria is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and usage semantics.
 ```swift
-enum Country {
+enum AppTheme {
   // ...
-  case unitedStates
+  case metal
+  case skyBlue
   // ...
 
   var name: String {
     switch self {
     // ...
-    case .unitedStates: return "United States"
+    case .metal: return "Metal"
+    case .skyBlue: return "SkyBlue"
+    // ...
+    }
+  }
+
+  var headingColor: String {
+    switch self {
+    // ...
+    case .metal: return "000000"
+    case .skyBlue: return "33FFFF"
     // ...
     }
   }
@@ -42,34 +53,37 @@ enum Country {
 ```
 and:
 ```swift
-struct Country {
+struct AppTheme {
   let name: String
-  init(name: String) {
+  let headingColor: String
+  init(name: String, headingColor: String) {
     self.name = name
+    self.headingColor = headingColor
   }
 
   // ...
-  static let unitedStates = Country(name: "United States")
+  static let metal = AppTheme(name: "Metal", headingColor: "000000")
+  static let skyBlue = AppTheme(name: "Sky Blue", headingColor: ""33FFFF)
   // ...
 }
 ```
-can both be called as (for example):
+can both be called identically as (for example):
 ```swift
-print(Country.unitedStates.name)
+print(AppTheme.metal.name)
 ```
 Enums have many valid use cases and are a critical part of the Swift language, but in the above described situations, I would say the **struct is preferable here**. I'm going to keep the "why" brief, because there already exist some good resources on this topic, but:*
-* It’s easier to extend with new values. When adding a new case to the enum, you need to fill in the `case` inside of `var name: String` - which sounds like a small deal, but at scale, these value types will often have _many_ more than 1 property. With a struct, all of those properties are localized together.
-* You can lock down the initialization (if you want): with a struct, I can choose to make the `init` private, or I can customize which properties are directly instantiable. With enums, you can add a case if you’re inside the owning module, and not otherwise.
+* It’s easier to extend with new values. When adding a new case to the enum, you need to fill in the `case` inside of `var name: String` and then navigate to the `case` inside of `var headingColor: String` - which sounds like a small deal, but at scale, these value types will often have _many_ more than 2 properties, and many more than 2 cases. With a struct, all of those properties are localized together.
+* You can lock down the initialization (if you want): with a struct, you can choose to make the `init` private, or you can customize which properties are directly instantiable. With enums, you can add a case if you’re inside the owning module, and not otherwise.
 * At scale, it’s easy for convoluted logic or accidental mismatches to occur inside the computed `var`s. With structs, all you can do is declare the type.
 
 For more on this choice and why I advocate for structs, see [Matt Diephouse’s post](https://matt.diephouse.com/2017/12/when-not-to-use-an-enum/).
 
 ## You Probably Want to Iterate
 
-While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `Country` values, or all of the themes in your app, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
+While I've established that I think structs are the right tool for this job, regardless of implementation, it will often be valuable to **iterate over this set of static values**. Maybe you want to show a modal UI with all of the supported `AppTheme` values, or list the supported countries, or you want to snapshot test the JSON representation of all of the user roles. Admittedly, this is the one area where `enum`s have a leg up - Apple supports this out of the box by just conforming to [CaseIterable](https://developer.apple.com/documentation/swift/caseiterable):
 ```swift
-extension Country: CaseIterable {} // works for free if using an enum, not for a struct!
-print(Country.allCases.map(\.name))
+extension AppTheme: CaseIterable {} // only works for free if using an enum!
+print(AppTheme.allCases.map(\.name))
 ```
 So, how do we patch this gap in functionality with structs? This is a perfect use case for (historically) Sourcery and (now) Swift macros! If the above examples don’t sound valuable, I’ll be clear that I find this a _very_ valuable piece of functionality because 1) every app always has these data types with a bunch of preset values and 2) I find they very often end up being representable as JSON, some UI, or both. Being able to iterate over the set means you can get new JSON snapshot tests, UI snapshot tests, SwiftUI previews and more, without any additional work when you add a new value.
 
@@ -99,8 +113,8 @@ So, why is the Macro implementation so much better?
 ```swift
 @StaticMemberIterable(recursive: true)
 struct AppTheme {
-  static let skyBlue: AppTheme = //...
   static let metal: AppTheme = // ...
+  static let skyBlue: AppTheme = //...
 
   // Improve `StaticMemberIterable` to produce cases like
   // `.promotionTheme(.holiday), .promotionTheme(.anniversary), etc.
