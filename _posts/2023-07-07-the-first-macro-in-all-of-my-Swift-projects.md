@@ -15,7 +15,7 @@ Macros are definitely nontrivial to grasp as well, but the value proposition to 
 
 If you want to learn more about macros, their benefits, and how they work, you should watch the WWDC session [Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167) first, and then [Write Swift macros](https://developer.apple.com/videos/play/wwdc2023/10166/).
 
-There’s one mainstay use case in most of my projects, and to explain why I find it useful, I need to back up and talk about a stylistic discussion that also occurs a lot in Swift projects.
+There’s already one mainstay use case for macros in most of my projects, and to explain why I find it useful, I need to back up and talk about a stylistic discussion that occurs a lot in the context of Swift projects.
 
 ## You Might Not Want an Enum
 
