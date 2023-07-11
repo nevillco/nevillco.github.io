@@ -1,5 +1,5 @@
 ---
-title: 'The First Macro in (Most of) My Swift Projects'
+title: 'My Favorite Macro Use Case: StaticMemberIterable'
 date: 2023-07-07 09:00:00
 excerpt: With the addition of macros, Swift 5.9 lets iOS developers extend the Swift compiler all on their own. There’s one macro in particular that I am excited about adopting in a range of projects.
 ---
