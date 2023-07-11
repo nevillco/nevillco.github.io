@@ -17,7 +17,7 @@ If you want to learn more about macros, their benefits, and how they work, you s
 
 There’s already one mainstay use case for macros in most of my projects, and to explain why I find it useful, I need to back up and talk about a stylistic discussion that occurs a lot in the context of Swift projects.
 
-## You Might Not Want an Enum
+## You Might Not Want an Enum…
 
 The situation I want to examine is when a Swift project has a **data type with a bunch of preset values**. That’s (intentionally) a pretty vague description, and examples include:
 * The set of all HTTP methods: GET, PUT, POST, DELETE, and so on.
@@ -26,7 +26,7 @@ The situation I want to examine is when a Swift project has a **data type with a
 * A client-side list of supported countries and their flags.
 * A set of themes for users to customize their UI.
 
-The list of applicable examples is quite long, and the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and the same usage semantics.
+The list of examples is quite long. And the related style discussion that comes up is: **should the data type be a struct or an enum**? Both of the following definitions have the same callsite and the same usage semantics.
 ```swift
 enum AppTheme {
   // …
