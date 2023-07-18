@@ -63,6 +63,9 @@
 	{{ site.data.settings.advanced_settings.header_js }}
 	{% endif %}
 	
+	{% if site.google_analytics and jekyll.environment == 'production' %}
+    {% include analytics.html %}
+    {% endif %}
 </head>
 
 

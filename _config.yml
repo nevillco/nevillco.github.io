@@ -4,6 +4,8 @@ title: Connor Neville
 url: https://connorneville.com
 baseurl: 
 
+google_analytics: G-WKB5LK24Z
+
 collections:
   pages:
     output: true
