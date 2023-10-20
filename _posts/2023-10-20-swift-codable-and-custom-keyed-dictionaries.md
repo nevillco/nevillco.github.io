@@ -10,6 +10,7 @@ Codable has been around for a while now (iOS 8+), and like many APIs, it has its
 
 ## Codable and Type Safe Properties
 Suppose we are working on a social media application. Those aren’t a whole lot of fun without an online component, so we will probably want to communicate with some web API - perhaps we are building our own backend, or communicating with a preexisting, popular social media API. Either way, we can leverage Codable here to send requests and read responses using native Swift values. 
+
 ### A Codable Example
 Here is an example model from the API, representing a group of users:
 ```swift
@@ -36,13 +37,14 @@ printJSON(example)
 // ✅ Prints:
 // {"userIDs":["UserID1","UserID2"],"id":"GroupID1"}
 ```
+
 ### A Bug Waiting to Happen
 But we have one slight problem with our new Codable type. Despite the fact that user IDs and group IDs are semantically completely different things, they are both declared as `String`s, so there is nothing stopping us from writing code like:
 ```swift
 func fetchGroupUser(id: String) -> User {
     // Fetch the user by its ID.
 }
-// 🚨 Bug: example.id is the ID of a group, not a user!
+// 🚨 Bug - example.id is the ID of a group, not a user!
 fetchGroupUser(example.id) 
 ```
 Swift has a strong type system with lots of tools, and we can indeed leverage one of them - generics - to prevent this class of bug from occurring at all. 
@@ -78,7 +80,7 @@ let example = SocialGroup(
     userIDs: ["UserID1", "UserID2"]
 )
 printJSON(example)
-// 🚨 Bug: this now prints:
+// 🚨 Bug - this now prints:
 // {"userIDs":[{"rawValue":"UserID1"},{"rawValue":"UserID2"}],"id":{"rawValue":"GroupID1"}}
 ```
 Even if we could change the backend, we probably wouldn’t want to agree on this JSON representation - it has a bunch of superfluous, low-value complexity to it. We should fix it by improving `Tag` to have the same JSON representation as its raw String - and luckily, this is a straightforward enough fix by overriding a couple of Codable’s default method implementations:
@@ -136,7 +138,10 @@ printJSON(example2)
 // 🚨 What? It’s an array of keys and values?
 // {"dictionary":["UserID1",5,"UserID2",10]}
 ```
-It’s worth noting, while you can’t just create a heterogeneous array of Strings and Ints like this in Swift, the above print output _is_ valid JSON, and this type will succeed in a "round trip" of encoding/decoding. But why do we get this different representation when our keys are `UserID`s, rather than Strings? You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code causing the behavior itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
+It’s worth noting, while you can’t just create a heterogeneous array of Strings and Ints like this in Swift, the above print output _is_ valid JSON, and this type will succeed in a "round trip" of encoding/decoding. But why do we get this different representation when our keys are `UserID`s, rather than Strings?
+
+### To the Source
+You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code causing the behavior itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
 > Encodes the contents of this dictionary into the given encoder.
 >   
 > If the dictionary uses `String` or `Int` keys, the contents are encoded
@@ -149,8 +154,9 @@ A [few lines down](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7
 > pairs, though.
 
 This makes sense - the implementation only knows our keys are `Encodable` - but arrays are Encodable too, for example, and definitely aren’t valid dictionary keys! Swift can’t know the difference without actually encoding your keys and checking, which would be significantly non-performant to do.
+
 ## The Fix: A Property Wrapper
-In Swift, when you want to customize the read/write behavior of a particular property, a likely candidate for the job is a [Property Wrapper](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Property-Wrappers). Property Wrappers provide a layer of customization that affects how a given property is accessed, whether for `get` or `set` operations. By definition, that also makes them a pretty compatible fit for extending Codable values in a variety of ways. In our case, the desired behavior is straightforward enough: we want to wrap dictionaries keyed by an ID, and we want to encode/decode them exactly as if they were keyed by the ID’s raw values.
+In Swift, when you want to customize the read/write behavior of a particular property, a likely candidate for the job is a [property wrapper](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Property-Wrappers). Property wrappers provide a layer of customization that affects how a given property is accessed, whether for `get` or `set` operations. By definition, that also makes them a pretty compatible fit for extending Codable values in a variety of ways. In our case, the desired behavior is straightforward enough: we want to wrap dictionaries keyed by an ID, and we want to encode/decode them exactly as if they were keyed by the ID’s raw values.
 ```swift
 @propertyWrapper 
 struct IDKeyed<Tag, Value: Codable>: Codable, ExpressibleByDictionaryLiteral {
