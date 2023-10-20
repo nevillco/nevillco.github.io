@@ -4,12 +4,14 @@ date: 2023-10-20 16:00:00
 excerpt: Swift’s JSON parsing solution, Codable, has its occasional rigid edges. Custom dictionary key types are one of them.
 ---
 
-[Codable](https://developer.apple.com/documentation/swift/codable) is a protocol from the Swift Standard Library that finds its way onto Swift projects of virtually every kind - from iOS apps, to CLIs, to Swift on the Server - because it serves as a first-party means of translating between JSON and Swift models. Its functionality is not strictly limited to JSON - for example, there exist analogous APIs for translating Codable types [to](https://developer.apple.com/documentation/foundation/propertylistencoder) and [from](https://developer.apple.com/documentation/foundation/propertylistdecoder) property lists (plists), but the most common use case is definitely JSON. Engaging with a web API, using Codable value types as the request and response models, and using `JSONEncoder`+`JSONDecoder` to translate between the two formats, continues to be a standard pattern across domains.
+[`Codable`](https://developer.apple.com/documentation/swift/codable) is a protocol from the Swift Standard Library that finds its way onto Swift projects of virtually every kind - from iOS apps, to CLIs, to Swift on the Server - because it serves as a first-party means of translating between JSON and Swift models. It supports formats other than JSON, but engaging with a web API, using Codable value types as the request and response models, and translating them with `JSONEncoder`+`JSONDecoder`, continues to be a standard pattern across domains.
 
-Codable has been around for a while now (iOS 8+), and like many APIs, it has its areas of high utility and flexibility, and areas of rigidity that can take developers down a rabbit hole. I’ll be highlighting one of those latter areas around dictionaries - specifically, when those keys are an unexpected type.
+Codable has been around for a while now (iOS 8+), and like many APIs, it has its areas of high utility and flexibility, and areas of rigidity that can take developers down a rabbit hole. I’ll be highlighting one of those latter areas around dictionaries - specifically, when a dictionary’s key is a type other than `Int` or `String`. But first, a quick detour to explain why this situation may come up.
 
-## A Quick Primer on Phantom Types
-Suppose we are working on a social media application. Those aren’t a whole lot of fun without an online component, so we will probably want to communicate with some web API - perhaps we are building our own backend, or communicating with a preexisting, popular social media API. Either way, we can leverage Codable here to send requests and read responses using native Swift values. Here is an example model from the API, representing a group of users:
+## Codable and Type Safe Properties
+Suppose we are working on a social media application. Those aren’t a whole lot of fun without an online component, so we will probably want to communicate with some web API - perhaps we are building our own backend, or communicating with a preexisting, popular social media API. Either way, we can leverage Codable here to send requests and read responses using native Swift values. 
+### A Codable Example
+Here is an example model from the API, representing a group of users:
 ```swift
 import Foundation
 struct SocialGroup: Codable {
@@ -17,12 +19,11 @@ struct SocialGroup: Codable {
     let userIDs: [String]
 }
 ```
-### A Codable Example
 Thanks to the Codable conformance, with no added code, we can easily go back and forth between our new struct and its JSON representation:
 ```swift
 // A little wrapper for printing Encodable values
 // In production, you’d want to handle the `try!` and
-// force unwrap (`!`) more gracefully
+// force unwrap (`!`) more gracefully.
 func printJSON<T: Encodable>(_ value: T) {
     let jsonData = try! JSONEncoder().encode(value)
     print(String(data: jsonData, encoding: .utf8)!)
@@ -32,19 +33,21 @@ let example = SocialGroup(
     userIDs: ["UserID1", "UserID2"]
 )
 printJSON(example)
-// ✅ prints:
+// ✅ Prints:
 // {"userIDs":["UserID1","UserID2"],"id":"GroupID1"}
 ```
 ### A Bug Waiting to Happen
 But we have one slight problem with our new Codable type. Despite the fact that user IDs and group IDs are semantically completely different things, they are both declared as `String`s, so there is nothing stopping us from writing code like:
 ```swift
 func fetchGroupUser(id: String) -> User {
-    // fetch the user by its ID
+    // Fetch the user by its ID.
 }
-// 🚨 bug: example.id is the ID of a group, not a user!
+// 🚨 Bug: example.id is the ID of a group, not a user!
 fetchGroupUser(example.id) 
 ```
-Swift has a strong type system with lots of tools, and we can indeed leverage one of them - generics - to prevent this class of bug from occurring at all. In the same way that it is a good practice to write unit tests for bugs, so that developers or users don’t have to find them manually, it is also a good practice to replace those unit tests with compile-time errors where possible, so that developers never have to write or maintain that unit test.
+Swift has a strong type system with lots of tools, and we can indeed leverage one of them - generics - to prevent this class of bug from occurring at all. 
+> In the same way that it is a good practice to write unit tests for bugs, so that developers or users don’t have to find them manually, it is also a good practice to replace those unit tests with compile-time errors where possible, so that developers never have to write or maintain that unit test in the first place.
+
 ### The Solution: Phantom Types
 The solution to catching this bug at compile time is called a _phantom type_ (I’ve also heard _tagged type_ or _generic wrapper type_). It’s a thin wrapper type around some raw type (`String` in our case, though the concept can be generalized) that uses Swift generics to disambiguate values with the same raw type, but different semantics (`UserID` and `SocialGroupID` in our case). It only takes a few lines of code:
 ```swift
@@ -74,12 +77,11 @@ let example = SocialGroup(
     id: "GroupID1",
     userIDs: ["UserID1", "UserID2"]
 )
-let jsonData = try! JSONEncoder().encode(example)
-print(String(data: jsonData, encoding: .utf8)!)
-// 🚨 same model now prints:
+printJSON(example)
+// 🚨 Bug: this now prints:
 // {"userIDs":[{"rawValue":"UserID1"},{"rawValue":"UserID2"}],"id":{"rawValue":"GroupID1"}}
 ```
-Even if we could change the backend, we probably wouldn’t want to agree on this JSON representation - it has a bunch of extra, low-value complexity to it. We should fix it by improving `Tag` to have the same JSON representation as its raw String - and luckily, this is a straightforward enough fix by overriding a couple of Codable’s default method implementations:
+Even if we could change the backend, we probably wouldn’t want to agree on this JSON representation - it has a bunch of superfluous, low-value complexity to it. We should fix it by improving `Tag` to have the same JSON representation as its raw String - and luckily, this is a straightforward enough fix by overriding a couple of Codable’s default method implementations:
 ```swift
 extension ID {
     func encode(to encoder: Encoder) throws {
@@ -120,9 +122,8 @@ let example1 = WeaklyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-let example1JSONData = try! JSONEncoder().encode(example1)
-print(String(data: jsonData, encoding: .utf8)!)
-// ✅ prints:
+printJSON(example1)
+// ✅ Prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 struct StronglyTypedExample: Codable {
 	let dictionary: [UserID: Int]
@@ -131,22 +132,21 @@ let example2 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-let example2JSONData = try! JSONEncoder().encode(example2)
-print(String(data: example2JSONData, encoding: .utf8)!)
-// 🚨 what?! It’s an array of keys and values?
+printJSON(example2)
+// 🚨 What? It’s an array of keys and values?
 // {"dictionary":["UserID1",5,"UserID2",10]}
 ```
-Why do we get this different representation when our keys are `UserID`s rather than Strings? You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
+It’s worth noting, while you can’t just create a heterogeneour array of Strings and Ints like this in Swift, the above print output _is_ valid JSON, and this type will succeed in a "round trip" of encoding/decoding. But why do we get this different representation when our keys are `UserID`s, rather than Strings? You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code causing the behavior itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
 > Encodes the contents of this dictionary into the given encoder.
 >   
->   If the dictionary uses `String` or `Int` keys, the contents are encoded
->   in a keyed container. Otherwise, the contents are encoded as alternating
->   key-value pairs in an unkeyed container.
+> If the dictionary uses `String` or `Int` keys, the contents are encoded
+> in a keyed container. Otherwise, the contents are encoded as alternating
+> key-value pairs in an unkeyed container.
 
-A [few lines further down](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5378-L5380):
+A [few lines down](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5378-L5380), our above type will hit this case.
 > Keys are Encodable but not Strings or Ints, so we cannot arbitrarily
->       convert to keys. We can encode as an array of alternating key-value
->       pairs, though.
+> convert to keys. We can encode as an array of alternating key-value
+> pairs, though.
 
 This makes sense - the implementation only knows our keys are `Encodable` - but arrays are Encodable too, for example, and definitely aren’t valid dictionary keys! Swift can’t know the difference without actually encoding your keys and checking, which would be significantly non-performant to do.
 ## The Fix: A Property Wrapper
@@ -199,6 +199,6 @@ While we’ve reached a solution that gives us the type safety and the JSON repr
 One may also find themselves in the situation where they own the server or backend, and sticking with the default encoding behavior as a mixed key+value array works fine for you. Maybe you’re even reusing that default mixed array on both sides because you’re using Swift on the server. Again, tradeoffs are always worth evaluating, but a **word of caution on sticking with this approach**: 
 > Dictionaries are un-sorted, which means the default array of mixed keys and values will be arbitrarily-ordered, which means reliably snapshot-testing this JSON becomes impossible.
 
-For String-keyed or Int-keyed dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering for snapshot testing, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array. By adopting this property wrapper, and encoding a String-keyed dictionary under the hood, our wrapper property becomes compatible with `outputFormatting = .sortedKeys` once more.
+For String-keyed or Int-keyed dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering for snapshot testing, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array. If we adopt the property wrapper, we encode a String-keyed dictionary under the hood, and our property will respect `outputFormatting = .sortedKeys` once more.
 
 The various code snippets in this article can all be [viewed as a gist here](https://gist.github.com/nevillco/6a15b5829cbd104f67affc0dbf7fc2d9), which runs in an Xcode playground.
