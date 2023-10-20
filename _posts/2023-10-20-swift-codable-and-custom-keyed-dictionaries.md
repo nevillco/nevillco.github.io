@@ -136,7 +136,7 @@ printJSON(example2)
 // 🚨 What? It’s an array of keys and values?
 // {"dictionary":["UserID1",5,"UserID2",10]}
 ```
-It’s worth noting, while you can’t just create a heterogeneour array of Strings and Ints like this in Swift, the above print output _is_ valid JSON, and this type will succeed in a "round trip" of encoding/decoding. But why do we get this different representation when our keys are `UserID`s, rather than Strings? You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code causing the behavior itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
+It’s worth noting, while you can’t just create a heterogeneous array of Strings and Ints like this in Swift, the above print output _is_ valid JSON, and this type will succeed in a "round trip" of encoding/decoding. But why do we get this different representation when our keys are `UserID`s, rather than Strings? You can find a handful of [threads asking about this behavior](https://forums.swift.org/t/bug-or-pebkac/33796) in various public forums, but the best explainer of this behavior (and why it’s intentional) is [the open source Swift code causing the behavior itself](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7bc569effae39666/stdlib/public/core/Codable.swift#L5352-L5361):
 > Encodes the contents of this dictionary into the given encoder.
 >   
 > If the dictionary uses `String` or `Int` keys, the contents are encoded
