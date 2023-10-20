@@ -107,7 +107,7 @@ struct WeaklyTypedExample: Codable {
 }
 // ✅ has the same JSON representation:
 struct StronglyTypedExample: Codable {
-	let value: UserID
+    let value: UserID
     let optionalValue: UserID?
     let array: [UserID]
     let dictionaryValues: [Int: UserID]
@@ -126,7 +126,7 @@ printJSON(example1)
 // ✅ Prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 struct StronglyTypedExample: Codable {
-	let dictionary: [UserID: Int]
+    let dictionary: [UserID: Int]
 }
 let example2 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
