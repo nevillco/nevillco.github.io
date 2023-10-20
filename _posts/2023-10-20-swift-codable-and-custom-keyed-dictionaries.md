@@ -127,6 +127,10 @@ let example1 = WeaklyTypedExample(dictionary: [
 printJSON(example1)
 // ✅ Prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
+
+// To use our phantom type as a dictionary key, we need to conform ID to Hashable. 
+// The default implementation will hash our `rawValue`, which works fine here.
+extension ID: Hashable { }
 struct StronglyTypedExample: Codable {
     let dictionary: [UserID: Int]
 }
