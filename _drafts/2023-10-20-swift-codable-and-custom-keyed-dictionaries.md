@@ -20,12 +20,18 @@ struct SocialGroup: Codable {
 ### A Codable Example
 Thanks to the Codable conformance, with no added code, we can easily go back and forth between our new struct and its JSON representation:
 ```swift
+// A little wrapper for printing Encodable values
+// In production, you’d want to handle the `try!` and
+// force unwrap (`!`) more gracefully
+func printJSON<T: Encodable>(_ value: T) {
+    let jsonData = try! JSONEncoder().encode(value)
+    print(String(data: jsonData, encoding: .utf8)!)
+}
 let example = SocialGroup(
     id: "GroupID1",
     userIDs: ["UserID1", "UserID2"]
 )
-let jsonData = try! JSONEncoder().encode(example)
-print(String(data: jsonData, encoding: .utf8)!)
+printJSON(example)
 // ✅ prints:
 // {"userIDs":["UserID1","UserID2"],"id":"GroupID1"}
 ```
@@ -191,6 +197,8 @@ print(String(data: example3JSONData, encoding: .utf8)!)
 While we’ve reached a solution that gives us the type safety and the JSON representation that we want, there are tradeoffs to consider. It’s worth highlighting that this property wrapper works by iterating over the dictionary’s keys in both directions via a `reduce` to go between String and phantom typed keys. **This is very likely 🚨 not performant 🚨 for large dictionaries**. Every codebase is different, and for some, the added type safety provided by using a phantom type is not worth the added complexity in this instance, and go back to using String keys. It’s always worth thinking critically about tradeoffs in your specific context.
 
 One may also find themselves in the situation where they own the server or backend, and sticking with the default encoding behavior as a mixed key+value array works fine for you. Maybe you’re even reusing that default mixed array on both sides because you’re using Swift on the server. Again, tradeoffs are always worth evaluating, but a **word of caution on sticking with this approach**: 
-> Dictionaries are un-sorted, which means the order of this mixed-value encoded array will be unsorted, which means reliably snapshot-testing your JSON value becomes impossible.
+> Dictionaries are un-sorted, which means the default array of mixed keys and values will be arbitrarily-ordered, which means reliably snapshot-testing this JSON becomes impossible.
 
-For regular old dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array.
+For String-keyed or Int-keyed dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering for snapshot testing, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array. By adopting this property wrapper, and encoding a String-keyed dictionary under the hood, our wrapper property becomes compatible with `outputFormatting = .sortedKeys` once more.
+
+The various code snippets in this article can all be [viewed as a gist here](https://gist.github.com/nevillco/6a15b5829cbd104f67affc0dbf7fc2d9), which runs in an Xcode playground.
