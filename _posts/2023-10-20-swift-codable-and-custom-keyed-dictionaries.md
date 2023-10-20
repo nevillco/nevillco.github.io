@@ -159,12 +159,9 @@ This makes sense - the implementation only knows our keys are `Encodable` - but 
 In Swift, when you want to customize the read/write behavior of a particular property, a likely candidate for the job is a [property wrapper](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Property-Wrappers). Property wrappers provide a layer of customization that affects how a given property is accessed, whether for `get` or `set` operations. By definition, that also makes them a pretty compatible fit for extending Codable values in a variety of ways[^2]. In our case, the desired behavior is straightforward enough: we want to wrap dictionaries keyed by an ID, and we want to encode/decode them exactly as if they were keyed by the ID’s raw values.
 ```swift
 @propertyWrapper 
-struct IDKeyed<Tag, Value: Codable>: Codable, ExpressibleByDictionaryLiteral {
+struct IDKeyed<Tag, Value: Codable>: Codable {
 
     var wrappedValue: [ID<Tag>: Value]
-    init(dictionaryLiteral elements: (ID<Tag>, Value)...) {
-        wrappedValue = .init(uniqueKeysWithValues: elements)
-    }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
