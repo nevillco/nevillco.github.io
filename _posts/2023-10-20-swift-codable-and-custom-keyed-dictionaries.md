@@ -4,7 +4,7 @@ date: 2023-10-20 16:00:00
 excerpt: Swift’s JSON parsing solution, Codable, has its occasional rigid edges. Custom dictionary key types are one of them.
 ---
 
-[`Codable`](https://developer.apple.com/documentation/swift/codable) is a protocol from the Swift Standard Library that finds its way onto Swift projects of virtually every kind - from iOS apps, to CLIs, to Swift on the Server - because it serves as a first-party means of translating between JSON and Swift models. It supports formats other than JSON, but engaging with a web API, using Codable value types as the request and response models, and translating them with `JSONEncoder`+`JSONDecoder`, continues to be a standard pattern across domains.
+[`Codable`](https://developer.apple.com/documentation/swift/codable) is a protocol from the Swift Standard Library that finds its way onto Swift projects of virtually every kind - from iOS apps, to CLIs, to Swift on the Server - because it offers a first-party means of translating between JSON and Swift models. It supports formats other than JSON, but engaging with a web API, using Codable value types as the request and response models, and translating them with `JSONEncoder`+`JSONDecoder`, continues to be a standard pattern across domains.
 
 Codable has been around for a while now (iOS 8+), and like many APIs, it has its areas of high utility and flexibility, and areas of rigidity that can take developers down a rabbit hole. I’ll be highlighting one of those latter areas around dictionaries - specifically, when a dictionary’s key is a type other than `Int` or `String`. But first, a quick detour to explain why this situation may come up.
 
@@ -100,7 +100,7 @@ Now our ID type just encodes and decodes its raw value directly, and we’ve add
 With this new ID type, and a couple of overridden methods, we can basically use our new ID types anywhere we would previously use a String:
 ```swift
 struct WeaklyTypedExample: Codable {
-	let value: String
+    let value: String
     let optionalValue: String?
     let array: [String]
     let dictionaryValues: [Int: String]
@@ -116,7 +116,7 @@ struct StronglyTypedExample: Codable {
 With one important edge case, which is **when the phantom type is used as a dictionary key**.
 ```swift
 struct WeaklyTypedExample: Codable {
-	let dictionary: [String: Int]
+    let dictionary: [String: Int]
 }
 let example1 = WeaklyTypedExample(dictionary: [
     "UserID1": 5,
