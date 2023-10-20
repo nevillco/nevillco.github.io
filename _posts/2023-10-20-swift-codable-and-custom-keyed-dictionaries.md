@@ -51,7 +51,7 @@ Swift has a strong type system with lots of tools, and we can indeed leverage on
 > In the same way that it is a good practice to write unit tests for bugs, so that developers or users don’t have to find them manually, it is also a good practice to replace those unit tests with compile-time errors where possible, so that developers never have to write or maintain that unit test in the first place.
 
 ### The Solution: Phantom Types
-The solution to catching this bug at compile time is called a _phantom type_ (I’ve also heard _tagged type_ or _generic wrapper type_). It’s a thin wrapper type around some raw type (`String` in our case, though the concept can be generalized) that uses Swift generics to disambiguate values with the same raw type, but different semantics (`UserID` and `SocialGroupID` in our case). It only takes a few lines of code:
+The solution to catching this bug at compile time is called a _phantom type_ (I’ve also heard _tagged type_ or _generic wrapper type_). It’s a thin wrapper type around some raw type (`String` in our case, though the concept can be generalized) that uses Swift generics to disambiguate values with the same raw type, but different semantics (`UserID` and `SocialGroupID` in our case). It only takes a few lines of code[^1]:
 ```swift
 struct ID<Tag>: Codable, ExpressibleByStringLiteral {
     public var rawValue: String
@@ -156,7 +156,7 @@ A [few lines down](https://github.com/apple/swift/blob/885dda1338898d9fd6da1c0d7
 This makes sense - the implementation only knows our keys are `Encodable` - but arrays are Encodable too, for example, and definitely aren’t valid dictionary keys! Swift can’t know the difference without actually encoding your keys and checking, which would be significantly non-performant to do.
 
 ## The Fix: A Property Wrapper
-In Swift, when you want to customize the read/write behavior of a particular property, a likely candidate for the job is a [property wrapper](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Property-Wrappers). Property wrappers provide a layer of customization that affects how a given property is accessed, whether for `get` or `set` operations. By definition, that also makes them a pretty compatible fit for extending Codable values in a variety of ways. In our case, the desired behavior is straightforward enough: we want to wrap dictionaries keyed by an ID, and we want to encode/decode them exactly as if they were keyed by the ID’s raw values.
+In Swift, when you want to customize the read/write behavior of a particular property, a likely candidate for the job is a [property wrapper](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Property-Wrappers). Property wrappers provide a layer of customization that affects how a given property is accessed, whether for `get` or `set` operations. By definition, that also makes them a pretty compatible fit for extending Codable values in a variety of ways[^2]. In our case, the desired behavior is straightforward enough: we want to wrap dictionaries keyed by an ID, and we want to encode/decode them exactly as if they were keyed by the ID’s raw values.
 ```swift
 @propertyWrapper 
 struct IDKeyed<Tag, Value: Codable>: Codable, ExpressibleByDictionaryLiteral {
@@ -208,3 +208,6 @@ One may also find themselves in the situation where they own the server or backe
 For String-keyed or Int-keyed dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering for snapshot testing, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array. If we adopt the property wrapper, we encode a String-keyed dictionary under the hood, and our property will respect `outputFormatting = .sortedKeys` once more.
 
 The various code snippets in this article can all be [viewed as a gist here](https://gist.github.com/nevillco/6a15b5829cbd104f67affc0dbf7fc2d9), which runs in an Xcode playground.
+
+[^1]: Creating a new `ID` phantom type as seen here would require creating a new empty `enum` to use as the `Tag` namespace, and optionally a typealias if you want to avoid retyping the generic at every callsite, but the new Swift Macros should be able to eliminate this boilerplate. I've seen one such [implementation](https://github.com/FullQueueDeveloper/UniquelyTypedID).
+[^2]: Other common use cases for property wrappers that interact with Codable include: parsing API responses that include integers wrapped as strings, providing default Swift values to properties that are optional in JSON, or trying multiple decoding paths before throwing an error.
