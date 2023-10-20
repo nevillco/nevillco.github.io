@@ -1,6 +1,6 @@
 ---
 title: 'Codable and Custom Keyed Dictionaries'
-date: 2023-10-20 23:00:00
+date: 2023-10-20 22:00:00
 excerpt: Swift’s JSON parsing solution, Codable, has its occasional rigid edges. Custom dictionary key types are one of them.
 ---
 
