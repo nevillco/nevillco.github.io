@@ -45,7 +45,7 @@ func fetchGroupUser(id: String) -> User {
     // Fetch the user by its ID.
 }
 // 🚨 Bug - example.id is the ID of a group, not a user!
-fetchGroupUser(example.id) 
+fetchGroupUser(id: example.id) 
 ```
 Swift has a strong type system with lots of tools, and we can indeed leverage one of them - generics - to prevent this class of bug from occurring at all. 
 > In the same way that it is a good practice to write unit tests for bugs, so that developers or users don’t have to find them manually, it is also a good practice to replace those unit tests with compile-time errors where possible, so that developers never have to write or maintain that unit test in the first place.
