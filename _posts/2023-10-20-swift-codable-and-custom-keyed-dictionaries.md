@@ -8,7 +8,7 @@ excerpt: Swift’s JSON parsing solution, Codable, has its occasional rigid edge
 
 Codable has been around for a while now (iOS 8+), and like many APIs, it has its areas of high utility and flexibility, and areas of rigidity that can take developers down a rabbit hole. I’ll be highlighting one of those latter areas around dictionaries - specifically, when a dictionary’s key is a type other than `Int` or `String`. But first, a quick detour to explain why this situation may come up.
 
-## Codable and Type Safe Properties
+## Codable and Type Safety
 Suppose we are working on a social media application. Those aren’t a whole lot of fun without an online component, so we will probably want to communicate with some web API - perhaps we are building our own backend, or communicating with a preexisting, popular social media API. Either way, we can leverage Codable here to send requests and read responses using native Swift values. 
 
 ### A Codable Example
