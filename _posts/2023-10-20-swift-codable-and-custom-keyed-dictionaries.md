@@ -120,11 +120,11 @@ With one important edge case, which is **when the phantom type is used as a dict
 struct WeaklyTypedExample: Codable {
     let dictionary: [String: Int]
 }
-let example1 = WeaklyTypedExample(dictionary: [
+let example2 = WeaklyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-printJSON(example1)
+printJSON(example2)
 // ✅ Prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 
@@ -134,11 +134,11 @@ extension ID: Hashable { }
 struct StronglyTypedExample: Codable {
     let dictionary: [UserID: Int]
 }
-let example2 = StronglyTypedExample(dictionary: [
+let example3 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-printJSON(example2)
+printJSON(example3)
 // 🚨 What? It’s an array of keys and values?
 // {"dictionary":["UserID1",5,"UserID2",10]}
 ```
@@ -191,22 +191,75 @@ Now, once used on our keyed dictionary, encoding and decoding works as expected:
 struct StronglyTypedExample: Codable {
     @IDKeyed var dictionary: [UserID: Int]
 }
-let example3 = StronglyTypedExample(dictionary: [
+let example4 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-let example3JSONData = try! JSONEncoder().encode(example3)
+let example4JSONData = try! JSONEncoder().encode(example3)
 print(String(data: example3JSONData, encoding: .utf8)!)
 // ✅ prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 ```
-### Is it the Right Fix?
+
+### Tradeoffs
 While we’ve reached a solution that gives us the type safety and the JSON representation that we want, there are tradeoffs to consider. It’s worth highlighting that this property wrapper works by iterating over the dictionary’s keys in both directions via a `reduce` to go between String and phantom typed keys. **This is very likely 🚨 not performant 🚨 for large dictionaries**. Every codebase is different, and for some, the added type safety provided by using a phantom type is not worth the added complexity in this instance, and go back to using String keys. It’s always worth thinking critically about tradeoffs in your specific context.
 
 One may also find themselves in the situation where they own the server or backend, and sticking with the default encoding behavior as a mixed key+value array works fine for you. Maybe you’re even reusing that default mixed array on both sides because you’re using Swift on the server. Again, tradeoffs are always worth evaluating, but a **word of caution on sticking with this approach**: 
 > Dictionaries are un-sorted, which means the default array of mixed keys and values will be arbitrarily-ordered, which means reliably snapshot-testing this JSON becomes impossible.
 
 For String-keyed or Int-keyed dictionaries, one can set `outputFormatting = .sortedKeys` on `JSONEncoder` to produce a stable ordering for snapshot testing, but as noted above, unless our keys are _specifically_ `String.self` or `Int.self`, that `outputFormatting` won’t matter, because our value will be encoded as an (arbitrarily-ordered) array. If we adopt the property wrapper, we encode a String-keyed dictionary under the hood, and our property will respect `outputFormatting = .sortedKeys` once more.
+
+### A Better Fix with iOS 15: `CodingKeyRepresentable`
+
+For deployment targets above iOS 15, rather than adding a property wrapper to each dictionary, you can conform your ID type to [`CodingKeyRepresentable`](https://developer.apple.com/documentation/swift/codingkeyrepresentable) instead. This is preferable because it doesn’t require the additional iteration through dictionary keys, and doesn’t require the developer to remember to apply a property wrapper.
+
+This implementation adds an additional type which plays the role of the [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey), which is the key used for encoding/decoding. We use it here to declare that an ID's `rawValue` is the coding key. Thanks to [Ian Keen](https://gist.github.com/IanKeen/3d226854c8c59a17e151a0022b71f6bb) for this piece.
+```swift
+struct AnyCodingKey: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+
+    init?(intValue: Int) {
+        self.intValue = intValue
+        self.stringValue = "\(intValue)"
+    }
+    init?(stringValue: String) {
+        self.intValue = nil
+        self.stringValue = stringValue
+    }
+    init<T: CodingKey>(_ key: T) {
+        self.stringValue = key.stringValue
+        self.intValue = key.intValue
+    }
+    init(_ int: Int) {
+        self.init(intValue: int)!
+    }
+    init(_ string: String) {
+        self.init(stringValue: string)!
+    }
+}
+extension ID: CodingKeyRepresentable {
+    var codingKey: CodingKey {
+        AnyCodingKey(rawValue)
+    }
+
+    init?<T: CodingKey>(codingKey: T) {
+        self.rawValue = codingKey.stringValue
+    }
+}
+
+struct CodingKeyRepresentableExample: Codable {
+    // No more property wrapper!
+    let dictionary: [UserID: Int]
+}
+let example5 = CodingKeyRepresentableExample(dictionary: [
+    "UserID1": 5,
+    "UserID2": 10
+])
+printJSON(example5)
+// ✅ prints:
+// {"dictionary":{"UserID2":10,"UserID1":5}}
+```
 
 The various code snippets in this article can all be [viewed as a gist here](https://gist.github.com/nevillco/6a15b5829cbd104f67affc0dbf7fc2d9), which runs in an Xcode playground.
 
