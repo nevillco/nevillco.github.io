@@ -29,11 +29,11 @@ func printJSON<T: Encodable>(_ value: T) {
     let jsonData = try! JSONEncoder().encode(value)
     print(String(data: jsonData, encoding: .utf8)!)
 }
-let example = SocialGroup(
+let group = SocialGroup(
     id: "GroupID1",
     userIDs: ["UserID1", "UserID2"]
 )
-printJSON(example)
+printJSON(group)
 // ✅ Prints:
 // {"userIDs":["UserID1","UserID2"],"id":"GroupID1"}
 ```
@@ -41,11 +41,11 @@ printJSON(example)
 ### A Bug Waiting to Happen
 But we have one slight problem with our new Codable type. Despite the fact that user IDs and group IDs are semantically completely different things, they are both declared as `String`s, so there is nothing stopping us from writing code like:
 ```swift
-func fetchGroupUser(id: String) -> User {
+func fetchUser(id: String) -> User {
     // Fetch the user by its ID.
 }
-// 🚨 Bug - example.id is the ID of a group, not a user!
-fetchGroupUser(id: example.id) 
+// 🚨 Bug - group.id is the ID of a group, not a user!
+fetchUser(id: group.id) 
 ```
 Swift has a strong type system with lots of tools, and we can indeed leverage one of them - generics - to prevent this class of bug from occurring at all. 
 > In the same way that it is a good practice to write unit tests for bugs, so that developers or users don’t have to find them manually, it is also a good practice to replace those unit tests with compile-time errors where possible, so that developers never have to write or maintain that unit test in the first place.
@@ -75,11 +75,11 @@ struct SocialGroup: Codable {
     let id: GroupID
     let userIDs: [UserID]
 }
-let example = SocialGroup(
+let group = SocialGroup(
     id: "GroupID1",
     userIDs: ["UserID1", "UserID2"]
 )
-printJSON(example)
+printJSON(group)
 // 🚨 Bug - this now prints:
 // {"userIDs":[{"rawValue":"UserID1"},{"rawValue":"UserID2"}],"id":{"rawValue":"GroupID1"}}
 ```
@@ -120,11 +120,11 @@ With one important edge case, which is **when the phantom type is used as a dict
 struct WeaklyTypedExample: Codable {
     let dictionary: [String: Int]
 }
-let example2 = WeaklyTypedExample(dictionary: [
+let example = WeaklyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-printJSON(example2)
+printJSON(example)
 // ✅ Prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 
@@ -134,11 +134,11 @@ extension ID: Hashable { }
 struct StronglyTypedExample: Codable {
     let dictionary: [UserID: Int]
 }
-let example3 = StronglyTypedExample(dictionary: [
+let example2 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-printJSON(example3)
+printJSON(example2)
 // 🚨 What? It’s an array of keys and values?
 // {"dictionary":["UserID1",5,"UserID2",10]}
 ```
@@ -191,12 +191,11 @@ Now, once used on our keyed dictionary, encoding and decoding works as expected:
 struct StronglyTypedExample: Codable {
     @IDKeyed var dictionary: [UserID: Int]
 }
-let example4 = StronglyTypedExample(dictionary: [
+let example3 = StronglyTypedExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-let example4JSONData = try! JSONEncoder().encode(example3)
-print(String(data: example3JSONData, encoding: .utf8)!)
+printJSON(example3)
 // ✅ prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 ```
@@ -252,11 +251,11 @@ struct CodingKeyRepresentableExample: Codable {
     // No more property wrapper!
     let dictionary: [UserID: Int]
 }
-let example5 = CodingKeyRepresentableExample(dictionary: [
+let example4 = CodingKeyRepresentableExample(dictionary: [
     "UserID1": 5,
     "UserID2": 10
 ])
-printJSON(example5)
+printJSON(example4)
 // ✅ prints:
 // {"dictionary":{"UserID2":10,"UserID1":5}}
 ```
