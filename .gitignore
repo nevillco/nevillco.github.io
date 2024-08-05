@@ -1,7 +1,3 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
-
-.DS_Store
+version https://git-lfs.github.com/spec/v1
+oid sha256:b01cf55a6f8b9e5c389d971a6ffdf5eb4247e10dd2f6f0b6c2dc3984a46c192d
+size 66
