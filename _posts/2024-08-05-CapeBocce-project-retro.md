@@ -7,6 +7,8 @@ During my childhood, my immediate family and some members of my extended family 
 
 My whole family enjoys games - just about anything for which we can keep score. One routine formed where we’d draw up a tournament bracket on a piece of paper, and everyone would play bocce in the driveway. We would often make this trip during the Olympics, so participants would pick a country to represent as a fun extra touch.
 
+![Bocce down on Cape Cod.](/images/CapeBocce/00-header.jpeg)
+
 With the return of the vacation this summer, I thought I would upgrade that piece of paper to an Apple TV app. I had a pretty clear scope in mind based on previous years, and about a month or so before the trip, so I felt it would be a good chance to learn a new platform with a concrete goal. The app would need to:
 * Allow inputting 8-12 participants with a name and a chosen country.
 * Generate a double elimination bracket with the input list of participants (everybody gets to play at least twice).
