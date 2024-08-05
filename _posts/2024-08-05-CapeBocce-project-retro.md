@@ -108,6 +108,7 @@ The resulting source code can be found [here](https://github.com/CleanFoundry/Ca
 ### Layered tvOS App Icons
 
 I’m no designer, but I wanted to toss on an app icon for this project. I generated an image of some bocce balls on the beach using [Midjourney](https://www.midjourney.com), and went to drop it in the asset catalog, when I found the tvOS app icon asset catalog is structured quite differently than iOS!
+
 ![The app icon asset catalog structure for a tvOS app.](/images/CapeBocce/07-asset-catalog-structure.png)
 
 tvOS app icons are composed of multiple _layers_, which allows for this shimmering effect when you focus on the app. I cropped out the bocce balls and put them in a separate layer:
