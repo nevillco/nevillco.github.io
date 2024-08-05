@@ -19,7 +19,7 @@ The vacation wrapped up last week, and the Cape Bocce tvOS app produced 7 very f
 
 <div style="text-align: center;">
   <video width="320" height="570" controls="controls">
-    <source src="https://github.com/nevillco/nevillco.github.io/blob/main/images/CapeBocce/01-live-preview.mov?raw=true" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/01-live-preview.mov?raw=true" type="video/mp4">
   </video>
 </div>
 And here is a full walkthrough of the app’s user experience:
