@@ -106,18 +106,23 @@ However, it might not be obvious how to generate a bracket with 11 participants 
 
 The resulting source code can be found [here](https://github.com/CleanFoundry/CapeBocce-tvOS/blob/main/Sources/CreateBracketKit/Bracket%2BGenerate.swift). There are some rigid assumptions, including some force unwraps and a static list of powers of 2, which were always valid for the Cape Bocce app use cases but should be cleaned up. There is also some invented terminology: when the number of participants is not a power of 2, the general idea is to play enough matches to reduce the remaining participants to a power of 2 - for example, with 11 participants, if 3 matches are played, we would be left with 8 participants (4 matches), reducing the problem to a simpler case. This first round of 3 matches is called a “filling round,” and then the following round of 4 matches is called the “first filled round.” If this topic is interesting to you, we have that in common! Some future directions will be discussed at the conclusion of this post.
 ### Layered tvOS App Icons
+
 I’m no designer, but I wanted to toss on an app icon for this project. I generated an image of some bocce balls on the beach using [Midjourney](https://www.midjourney.com), and went to drop it in the asset catalog, when I found the tvOS app icon asset catalog is structured quite differently than iOS!
 ![The app icon asset catalog structure for a tvOS app.](/images/CapeBocce/07-asset-catalog-structure.png)
 
 tvOS app icons are composed of multiple _layers_, which allows for this shimmering effect when you focus on the app. I cropped out the bocce balls and put them in a separate layer:
+
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
     <source src="https://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/08-app-icon-shimmer.mov?raw=true" type="video/mp4">
   </video>
 </div>
+
 I would have ideally content-aware-replaced the bocce balls in the background layer, but didn’t get to it in time.
 ### The Champion Screen (ChatGPT and Confetti)
+
 With a few days left before heading on vacation, the project was functionally complete, and I had time to add a bit of surprise and delight. Here’s what I ended up with, when a participant wins a tournament:
+
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
     <source src="https://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/09-champion-screen.mp4?raw=true" type="video/mp4">
