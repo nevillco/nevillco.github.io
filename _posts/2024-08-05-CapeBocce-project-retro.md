@@ -19,7 +19,7 @@ The vacation wrapped up last week, and the Cape Bocce tvOS app produced 7 very f
 
 <div style="text-align: center;">
   <video width="320" height="570" controls="controls">
-    <source src="/images/CapeBocce/01-live-preview.mov" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/01-live-preview.mov?raw=true" type="video/mp4">
   </video>
 </div>
 
@@ -27,7 +27,7 @@ And here is a full walkthrough of the app’s user experience:
 
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="/images/CapeBocce/02-full-walkthrough.mp4" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/02-full-walkthrough.mp4?raw=true" type="video/mp4">
   </video>
 </div>
 
@@ -76,7 +76,7 @@ SwiftUI tvOS apps do a nice job of managing user focus by default. With no work 
 I think the end result looks pretty good!
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="/images/CapeBocce/04-focus-state.mp4" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/04-focus-state.mp4?raw=true" type="video/mp4">
   </video>
 </div>
 
@@ -112,7 +112,7 @@ I’m no designer, but I wanted to toss on an app icon for this project. I gener
 tvOS app icons are composed of multiple _layers_, which allows for this shimmering effect when you focus on the app. I cropped out the bocce balls and put them in a separate layer:
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="/images/CapeBocce/08-app-icon-shimmer.mov" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/08-app-icon-shimmer.mov?raw=true" type="video/mp4">
   </video>
 </div>
 I would have ideally content-aware-replaced the bocce balls in the background layer, but didn’t get to it in time.
@@ -120,7 +120,7 @@ I would have ideally content-aware-replaced the bocce balls in the background la
 With a few days left before heading on vacation, the project was functionally complete, and I had time to add a bit of surprise and delight. Here’s what I ended up with, when a participant wins a tournament:
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="/images/CapeBocce/09-champion-screen.mp4" type="video/mp4">
+    <source src="https://github.com/nevillco/nevillco.github.io/blob/gh-pages/images/CapeBocce/09-champion-screen.mp4?raw=true" type="video/mp4">
   </video>
 </div>
 
