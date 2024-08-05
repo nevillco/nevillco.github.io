@@ -111,7 +111,7 @@ I’m no designer, but I wanted to toss on an app icon for this project. I gener
 tvOS app icons are composed of multiple _layers_, which allows for this shimmering effect when you focus on the app. I cropped out the bocce balls and put them in a separate layer:
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="ttps://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/08-app-icon-shimmer.mov?raw=true" type="video/mp4">
+    <source src="https://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/08-app-icon-shimmer.mov?raw=true" type="video/mp4">
   </video>
 </div>
 I would have ideally content-aware-replaced the bocce balls in the background layer, but didn’t get to it in time.
@@ -119,7 +119,7 @@ I would have ideally content-aware-replaced the bocce balls in the background la
 With a few days left before heading on vacation, the project was functionally complete, and I had time to add a bit of surprise and delight. Here’s what I ended up with, when a participant wins a tournament:
 <div style="text-align: center;">
   <video width="640" height="320" controls="controls">
-    <source src="ttps://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/09-champion-screen.mp4?raw=true" type="video/mp4">
+    <source src="https://media.githubusercontent.com/media/nevillco/nevillco.github.io/main/images/CapeBocce/09-champion-screen.mp4?raw=true" type="video/mp4">
   </video>
 </div>
 
