@@ -2,7 +2,7 @@
 title: 'A tvOS Project Retro: Introducing (and Open-Sourcing) the Cape Bocce Bracket App'
 date: 2024-08-05 09:00:00
 excerpt: Detailing my experience building a bocce tournament tvOS app for a family vacation.
-image: images/CapeBocce/preview.jpeg
+image: /images/CapeBocce/preview.jpeg
 ---
 During my childhood, my immediate family and some members of my extended family began a tradition to go vacationing on Cape Cod once per year. This trip is an incredibly fond memory for myself and everyone involved, so it was very exciting when we decided to go back this year for the first time in a decade.
 
