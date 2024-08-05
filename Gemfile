@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:602683bdf43021081450f0ae40aee5d926ceed3b1d9d8c9f873d4b75e0577c0c
-size 182
+source 'https://rubygems.org'
+
+group :jekyll_plugins do
+  gem 'jekyll-feed'
+  gem 'jekyll-paginate'
+  gem 'jekyll-sitemap'
+  gem 'github-pages', "~> 228"
+end
+gem "webrick", "~> 1.8"

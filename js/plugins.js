@@ -1,3 +1,17 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a227c6ab23818e2cd263a807785fefa4fab40c16c9e2f600f69c80fcaca527b9
-size 421
+//
+//
+// Simples JS
+//
+//
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - Plugins
+
+// @codekit-prepend "/plugins/history.js"
+// @codekit-prepend "/plugins/imagesloaded.js"
+// @codekit-prepend "/plugins/masonry.js"
+// @codekit-prepend "/plugins/debounce.js"
+// @codekit-prepend "/plugins/fluidbox.js"
+// @codekit-prepend "/plugins/owl.js"
+// @codekit-prepend "/plugins/waypoints.js"
