@@ -1,0 +1,7 @@
+images/CapeBocce/01-live-preview.mov filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/08-app-icon-shimmer.mov filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/09-champion-screen.mp4 filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/02-full-walkthrough.mp4 filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/04-focus-state.mp4 filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/*.mov filter=lfs diff=lfs merge=lfs -text
+images/CapeBocce/*.mp4 filter=lfs diff=lfs merge=lfs -text
